@@ -56,13 +56,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-class RemapperVisitor extends SimpleRemapperVisitor {
+public class RemapperVisitor extends SimpleRemapperVisitor {
 
-    private final ImportRewrite importRewrite;
-    private final Deque<ImportContext> importStack = new ArrayDeque<>();
-    private final String simpleDeobfuscatedName;
+    protected final ImportRewrite importRewrite;
+    protected final Deque<ImportContext> importStack = new ArrayDeque<>();
+    protected final String simpleDeobfuscatedName;
 
-    RemapperVisitor(RewriteContext context, MappingSet mappings, boolean javadoc) {
+    public RemapperVisitor(RewriteContext context, MappingSet mappings, boolean javadoc) {
         super(context, mappings, javadoc);
 
         this.importRewrite = context.createImportRewrite();
@@ -97,7 +97,7 @@ class RemapperVisitor extends SimpleRemapperVisitor {
         }
     }
 
-    private void remapType(SimpleName node, ITypeBinding binding) {
+    public void remapType(SimpleName node, ITypeBinding binding) {
         if (binding.isTypeVariable() || GracefulCheck.checkGracefully(this.context, binding)) {
             return;
         }
@@ -131,7 +131,7 @@ class RemapperVisitor extends SimpleRemapperVisitor {
         }
     }
 
-    private void remapQualifiedType(QualifiedName node, ITypeBinding binding) {
+    public void remapQualifiedType(QualifiedName node, ITypeBinding binding) {
         String binaryName = binding.getBinaryName();
         if (binaryName == null) {
             if (this.context.getMercury().isGracefulClasspathChecks() || this.context.getMercury().isGracefulJavadocClasspathChecks() && GracefulCheck.isJavadoc(node)) {
@@ -153,7 +153,7 @@ class RemapperVisitor extends SimpleRemapperVisitor {
         this.context.createASTRewrite().replace(node, node.getAST().newName(newName), null);
     }
 
-    private void remapInnerType(QualifiedName qualifiedName, ITypeBinding outerClass) {
+    public void remapInnerType(QualifiedName qualifiedName, ITypeBinding outerClass) {
         final String binaryName = outerClass.getBinaryName();
         if (binaryName == null) {
             if (this.context.getMercury().isGracefulClasspathChecks()) {
@@ -349,13 +349,13 @@ class RemapperVisitor extends SimpleRemapperVisitor {
         return false;
     }
 
-    private void pushImportContext(ITypeBinding binding) {
+    public void pushImportContext(ITypeBinding binding) {
         ImportContext context = new ImportContext(this.importRewrite.getDefaultImportRewriteContext(), this.importStack.peek());
         collectImportContext(context, binding);
         this.importStack.push(context);
     }
 
-    private void collectImportContext(ImportContext context, ITypeBinding binding) {
+    public void collectImportContext(ImportContext context, ITypeBinding binding) {
         if (binding == null) {
             return;
         }
@@ -454,7 +454,7 @@ class RemapperVisitor extends SimpleRemapperVisitor {
         this.importStack.pop();
     }
 
-    private void transferAnnotations(final AnnotatableType oldNode, final AnnotatableType newNode) {
+    public void transferAnnotations(final AnnotatableType oldNode, final AnnotatableType newNode) {
         // we don't support type annotations, ignore
         if (newNode.getAST().apiLevel() < AST.JLS8) {
             return;
@@ -473,12 +473,12 @@ class RemapperVisitor extends SimpleRemapperVisitor {
         }
     }
 
-    private static class ImportContext extends ImportRewrite.ImportRewriteContext {
+    public static class ImportContext extends ImportRewrite.ImportRewriteContext {
         private final ImportRewrite.ImportRewriteContext defaultContext;
-        final Map<String, String> implicit;
-        final Set<String> conflicts;
+        public final Map<String, String> implicit;
+        public final Set<String> conflicts;
 
-        ImportContext(ImportRewrite.ImportRewriteContext defaultContext, ImportContext parent) {
+        public ImportContext(ImportRewrite.ImportRewriteContext defaultContext, ImportContext parent) {
             this.defaultContext = defaultContext;
             if (parent != null) {
                 this.implicit = new HashMap<>(parent.implicit);

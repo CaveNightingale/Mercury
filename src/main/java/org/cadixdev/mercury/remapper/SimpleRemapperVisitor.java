@@ -50,14 +50,14 @@ import java.util.function.BiFunction;
 /**
  * Remaps only methods, fields, and parameters.
  */
-class SimpleRemapperVisitor extends ASTVisitor {
+public class SimpleRemapperVisitor extends ASTVisitor {
 
     private static final String LVT_NAMES_PROPERTY = "org.cadixdev.mercury.lvtNames";
     private static final String LOCAL_VARIABLE_NAME_PROPERTY = "org.cadixdev.mercury.localVariableName";
     private static final String NEW_PARAM_NAMES_PROPERTY = "org.cadixdev.mercury.newParamNames";
 
-    final RewriteContext context;
-    final MappingSet mappings;
+    public final RewriteContext context;
+    public final MappingSet mappings;
     private final InheritanceProvider inheritanceProvider;
 
     SimpleRemapperVisitor(RewriteContext context, MappingSet mappings, boolean javadoc) {
@@ -67,13 +67,13 @@ class SimpleRemapperVisitor extends ASTVisitor {
         this.inheritanceProvider = MercuryInheritanceProvider.get(context.getMercury());
     }
 
-    final void updateIdentifier(SimpleName node, String newName) {
+    public final void updateIdentifier(SimpleName node, String newName) {
         if (!node.getIdentifier().equals(newName) && !node.isVar()) {
             this.context.createASTRewrite().set(node, SimpleName.IDENTIFIER_PROPERTY, newName, null);
         }
     }
 
-    private void remapMethod(SimpleName node, IMethodBinding binding) {
+    public void remapMethod(SimpleName node, IMethodBinding binding) {
         ITypeBinding declaringClass = binding.getDeclaringClass();
         if (GracefulCheck.checkGracefully(this.context, declaringClass)) {
             return;
@@ -92,7 +92,7 @@ class SimpleRemapperVisitor extends ASTVisitor {
         }
     }
 
-    private void remapField(SimpleName node, IVariableBinding binding) {
+    public void remapField(SimpleName node, IVariableBinding binding) {
         if (!binding.isField()) {
             if (binding.isParameter()) {
                 remapParameter(node, binding);
@@ -122,7 +122,7 @@ class SimpleRemapperVisitor extends ASTVisitor {
         updateIdentifier(node, mapping.getDeobfuscatedName());
     }
 
-    private MethodMapping findMethodMapping(ITypeBinding declaringClass, IMethodBinding declaringMethod) {
+    public MethodMapping findMethodMapping(ITypeBinding declaringClass, IMethodBinding declaringMethod) {
         final ClassMapping<?, ?> classMapping = this.mappings.getClassMapping(declaringClass.getBinaryName()).orElse(null);
         if (classMapping == null) {
             return null;
@@ -138,7 +138,7 @@ class SimpleRemapperVisitor extends ASTVisitor {
         return methodMapping;
     }
 
-    private <T extends MemberMapping<?, ?>, M> T findMemberMapping(
+    public <T extends MemberMapping<?, ?>, M> T findMemberMapping(
         M matcher,
         ClassMapping<?, ?> classMapping,
         BiFunction<ClassMapping<?, ?>, M, Optional<? extends T>> getMapping
@@ -154,7 +154,7 @@ class SimpleRemapperVisitor extends ASTVisitor {
         return findMemberMappingAnonClass(matcher, classMapping, getMapping);
     }
 
-    private <T extends MemberMapping<?, ?>, M> T findMemberMappingAnonClass(
+    public <T extends MemberMapping<?, ?>, M> T findMemberMappingAnonClass(
         M matcher,
         ClassMapping<?, ?> classMapping,
         BiFunction<ClassMapping<?, ?>, M, Optional<? extends T>> getMapping
@@ -200,7 +200,7 @@ class SimpleRemapperVisitor extends ASTVisitor {
         return getMapping.apply(otherClassMapping, matcher).orElse(null);
     }
 
-    private void remapParameter(SimpleName node, IVariableBinding binding) {
+    public void remapParameter(SimpleName node, IVariableBinding binding) {
         IMethodBinding declaringMethod = binding.getDeclaringMethod();
         if (declaringMethod == null) {
             return;
@@ -247,7 +247,7 @@ class SimpleRemapperVisitor extends ASTVisitor {
      * @param node The local variable node to check
      * @param binding The variable binding corresponding to the local variable name
      */
-    private void checkLocalVariable(SimpleName node, IVariableBinding binding) {
+    public void checkLocalVariable(SimpleName node, IVariableBinding binding) {
         final ASTNode bindingNode = this.context.getCompilationUnit().findDeclaringNode(binding);
         final String localVariableName = (String) bindingNode.getProperty(LOCAL_VARIABLE_NAME_PROPERTY);
         if (localVariableName != null) {
